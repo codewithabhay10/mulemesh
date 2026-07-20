@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchGraph } from "./api";
 import GraphView from "./components/GraphView";
+import CorridorView from "./components/CorridorView";
 import TopBar from "./components/TopBar";
 import SidePanel from "./components/SidePanel";
 import Toasts from "./components/Toasts";
 import Legend from "./components/Legend";
+import Splash from "./components/Splash";
 
 const PLAY_MS = 15000;
 
@@ -15,12 +17,30 @@ export default function App() {
   const [tick, setTick] = useState(0);
   const [detected, setDetected] = useState([]);
   const [selected, setSelected] = useState(null); // {type:"ring"|"node", id}
+  const [viewMode, setViewMode] = useState("corridor"); // corridor | network
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashLeaving, setSplashLeaving] = useState(false);
   const playRef = useRef({ t: -Infinity, startedAt: 0 });
   const metaRef = useRef({}); // read by canvas paint callbacks every frame
+  const bootAt = useRef(performance.now());
 
   useEffect(() => {
     fetchGraph().then(setData).catch((e) => setError(String(e)));
   }, []);
+
+  // hold the intro ~2.6s (and until data + tiles are loading), then open
+  useEffect(() => {
+    if (!data) return;
+    const wait = Math.max(0, 2600 - (performance.now() - bootAt.current));
+    const t = setTimeout(() => setSplashLeaving(true), wait);
+    return () => clearTimeout(t);
+  }, [data]);
+
+  useEffect(() => {
+    if (!splashLeaving) return;
+    const t = setTimeout(() => setShowSplash(false), 850); // matches CSS fade
+    return () => clearTimeout(t);
+  }, [splashLeaving]);
 
   const streamTs = useMemo(() => {
     if (!data) return { min: 0, max: 1 };
@@ -128,30 +148,49 @@ export default function App() {
       </div>
     );
   }
-  if (!data) {
-    return (
-      <div className="boot">
-        <h1>MuleMesh</h1>
-        <p>building the synthetic corridor…</p>
-      </div>
-    );
-  }
+  const onNodeClick = (node) => {
+    if (node.ring && detectedSet.has(node.ring)) {
+      setSelected({ type: "ring", id: node.ring });
+    } else {
+      setSelected({ type: "node", id: node.id });
+    }
+  };
 
   return (
     <div className="app">
-      <GraphView
-        view={view}
-        metaRef={metaRef}
-        phase={phase}
-        onNodeClick={(node) => {
-          if (node.ring && detectedSet.has(node.ring)) {
-            setSelected({ type: "ring", id: node.ring });
-          } else {
-            setSelected({ type: "node", id: node.id });
-          }
-        }}
-        onBgClick={() => setSelected(null)}
-      />
+      {data && (
+        <>
+      {viewMode === "corridor" ? (
+        <CorridorView
+          view={view}
+          metaRef={metaRef}
+          onNodeClick={onNodeClick}
+          onBgClick={() => setSelected(null)}
+        />
+      ) : (
+        <GraphView
+          view={view}
+          metaRef={metaRef}
+          phase={phase}
+          onNodeClick={onNodeClick}
+          onBgClick={() => setSelected(null)}
+        />
+      )}
+
+      <div className="view-toggle">
+        <button
+          className={viewMode === "corridor" ? "on" : ""}
+          onClick={() => setViewMode("corridor")}
+        >
+          🛰 Corridor
+        </button>
+        <button
+          className={viewMode === "network" ? "on" : ""}
+          onClick={() => setViewMode("network")}
+        >
+          ◉ Network
+        </button>
+      </div>
       <TopBar
         stats={data.stats}
         detectedCount={detected.length}
@@ -179,6 +218,9 @@ export default function App() {
           <span className="live-dot" /> streaming live transactions…
         </div>
       )}
+        </>
+      )}
+      {showSplash && <Splash leaving={splashLeaving} />}
     </div>
   );
 }

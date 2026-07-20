@@ -4,8 +4,18 @@
 
 MuleMesh generates a synthetic transaction graph (~277 accounts, ~640 transfers),
 injects three classic laundering typologies with ground-truth labels, detects them
-with explainable graph analytics, and renders everything as a live force-directed
-network you can screen-record for a 60-second pitch.
+with explainable graph analytics, and renders everything in two live views you can
+screen-record for a 60-second pitch:
+
+- **🛰 Corridor** (default) — a Google-Earth-style satellite map with Indian
+  accounts scattered over real metros, Singapore accounts on the island, the
+  India and Singapore flags pinned above/below, and glowing arcs that flow
+  **one-way, India → Singapore** as the money moves.
+- **◉ Network** — the classic force-directed graph, best for reading the internal
+  structure of each ring (fan-in/fan-out, chains, smurf spokes).
+
+Toggle between them with the pill at the bottom of the screen; Play, detection,
+and the ring dossier work identically in both.
 
 > 100% synthetic data. No real accounts, no database — the whole world lives in memory.
 
@@ -52,9 +62,9 @@ python backend/seed.py 42        # any other seed
 
 ## The 60-second demo script
 
-1. **App loads** — a calm force-directed graph of normal UPI/PayNow traffic.
-   Gold dashed edges with drifting particles are legitimate cross-border remittances.
-   Blue-rimmed nodes are Singapore accounts.
+1. **App loads** — the satellite Corridor view: calm teal account clusters over
+   India, the Singapore cluster below, and gold arcs of legitimate cross-border
+   remittances drifting India → Singapore. (Switch to **◉ Network** any time.)
 2. **Hit ▶ Play** — six hours of transactions stream in over ~15 seconds.
    Three clusters assemble live and **flash red** as each ring completes:
    a fan-in/fan-out hub, a layering chain, and a smurfing network.
@@ -119,9 +129,14 @@ The demo never breaks.
 
 ## Stack
 
-FastAPI + NetworkX (in-memory graph, Louvain, betweenness) · React + Vite +
-react-force-graph-2d (canvas rendering, custom node/edge painting) · optional
-Anthropic API for SAR prose.
+FastAPI + NetworkX (in-memory graph, Louvain, betweenness) · React + Vite ·
+react-force-graph-2d for the Network view · Leaflet + Esri World Imagery
+(free satellite tiles, no API key) with a synced canvas overlay for the Corridor
+view · optional Anthropic API for SAR prose.
+
+> The Corridor view streams satellite tiles from Esri, so it needs internet. If
+> tiles are unavailable the map falls back to a dark ocean backdrop and the arcs,
+> nodes, and flags still render — nothing else in the demo depends on the network.
 
 ## Production-ish single process
 
