@@ -7,6 +7,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+
+class SPAStatic(StaticFiles):
+    """Serve built assets, but never let the browser cache index.html —
+    otherwise a stale index.html keeps pointing at old hashed bundles and new
+    builds silently don't load. Hashed JS/CSS keep their long cache."""
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        ctype = response.headers.get("content-type", "")
+        if ctype.startswith("text/html"):
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return response
+
 from .detection import analyze
 from .generator import generate
 from .sar import build_template_sar, polish_with_claude
@@ -113,4 +126,4 @@ def get_sar(ring_id: str, req: SarRequest):
 # Serve the built frontend when it exists (single-process demo mode)
 _dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 if _dist.is_dir():
-    app.mount("/", StaticFiles(directory=_dist, html=True), name="frontend")
+    app.mount("/", SPAStatic(directory=_dist, html=True), name="frontend")

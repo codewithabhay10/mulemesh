@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatINR } from "../risk";
 
-function Kpi({ label, value, format, alert }) {
+function Kpi({ label, value, format, alert, accent }) {
   const [disp, setDisp] = useState(0);
   const prev = useRef(0);
 
@@ -33,7 +33,7 @@ function Kpi({ label, value, format, alert }) {
   else text = Math.round(disp).toLocaleString("en-IN");
 
   return (
-    <div className={`kpi${alert ? " alert" : ""}`}>
+    <div className={`kpi${alert ? " alert" : ""}`} style={{ "--kpi-accent": accent }}>
       <span className="kpi-value">{text}</span>
       <span className="kpi-label">{label}</span>
     </div>
@@ -54,7 +54,7 @@ export default function TopBar({
     <header className="topbar">
       <div className="brand">
         <span className="brand-mark">◉</span>
-        <div>
+        <div className="brand-text">
           <h1>
             Mule<span>Mesh</span>
           </h1>
@@ -63,24 +63,33 @@ export default function TopBar({
       </div>
 
       <div className="kpis">
-        <Kpi label="accounts scanned" value={stats.accounts} />
-        <Kpi label="transactions" value={stats.transactions} />
-        <Kpi
-          label="rings detected"
-          value={detectedCount}
-          alert={detectedCount > 0}
-        />
-        <Kpi
-          label="flagged value"
-          value={flaggedValue}
-          format="inr"
-          alert={flaggedValue > 0}
-        />
-        <Kpi
-          label={recall != null ? `precision · recall ${Math.round(recall * 100)}%` : "precision"}
-          value={precision}
-          format="pct"
-        />
+        <div className="kpi-cluster">
+          <Kpi label="accounts scanned" value={stats.accounts} accent="var(--blue)" />
+          <span className="kpi-sep" />
+          <Kpi label="transactions" value={stats.transactions} accent="var(--blue)" />
+          <span className="kpi-sep" />
+          <Kpi
+            label="rings detected"
+            value={detectedCount}
+            alert={detectedCount > 0}
+            accent="var(--red)"
+          />
+          <span className="kpi-sep" />
+          <Kpi
+            label="flagged value"
+            value={flaggedValue}
+            format="inr"
+            alert={flaggedValue > 0}
+            accent="var(--gold)"
+          />
+          <span className="kpi-sep" />
+          <Kpi
+            label={recall != null ? `precision · recall ${Math.round(recall * 100)}%` : "precision"}
+            value={precision}
+            format="pct"
+            accent="var(--green)"
+          />
+        </div>
       </div>
 
       <button

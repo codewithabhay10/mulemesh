@@ -275,7 +275,7 @@ export default function CorridorView({ view, metaRef, onNodeClick, onBgClick }) 
   };
 
   return (
-    <div className="corridor">
+    <div className="corridor-view">
       <div className="corridor-map" ref={mapElRef} />
       <canvas className="corridor-canvas" ref={canvasRef} onClick={onClick} />
       {flags && (
