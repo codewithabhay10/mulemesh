@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { formatINR } from "../risk";
+import { MeshMark } from "./Logo";
 
 function Kpi({ label, value, format, alert, accent }) {
   const [disp, setDisp] = useState(0);
@@ -53,12 +54,12 @@ export default function TopBar({
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="brand-mark">◉</span>
+        <MeshMark size={44} className="brand-mark" />
         <div className="brand-text">
           <h1>
             Mule<span>Mesh</span>
           </h1>
-          <p>India UPI ↔ Singapore PayNow · synthetic corridor</p>
+          <p>India UPI ↔ Singapore PayNow</p>
         </div>
       </div>
 

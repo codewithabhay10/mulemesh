@@ -1,10 +1,12 @@
+import { MeshMark } from "./Logo";
+
 // Branded intro. Sits over the app while the corridor + satellite tiles load
 // behind it, then fades/scales away to "open" into the map.
 export default function Splash({ leaving }) {
   return (
     <div className={`splash${leaving ? " leaving" : ""}`}>
       <div className="splash-inner">
-        <div className="splash-mark">◉</div>
+        <MeshMark size={78} className="splash-mark" />
         <h1 className="splash-title">
           Mule<span>Mesh</span>
         </h1>

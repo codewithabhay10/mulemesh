@@ -1,8 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { riskColor } from "../risk";
+import { IndiaFlag, SingaporeFlag } from "./Flags";
 
 const PRE_REVEAL_RISK = 12; // mule nodes look calm until their ring is detected
+
+// Country separation: India left, Singapore right, matching the corridor map so
+// the two views read the same way.
+//
+// Runs from onEngineTick (confirmed firing) rather than a force registered via
+// ref.d3Force() — force-graph drives its layout from its own render loop, so
+// hooking the tick is the reliable place to nudge positions.
+//
+// These two constants are the tuning knobs: SPREAD is how far apart the two
+// cluster centres sit, STRENGTH how hard nodes are pulled toward their side.
+// Turn STRENGTH down if the split looks too rigid, up if the cross-border links
+// drag the two countries back into one blob.
+const COUNTRY_SPREAD = 300; // half the distance between the two cluster centres
+const COUNTRY_STRENGTH = 0.06;
+
+function separateByCountry(nodes) {
+  for (const n of nodes) {
+    const target = n.country === "SG" ? COUNTRY_SPREAD : -COUNTRY_SPREAD;
+    n.vx += (target - n.x) * COUNTRY_STRENGTH;
+  }
+}
 
 function hashPhase(id) {
   let h = 0;
@@ -14,6 +36,10 @@ export default function GraphView({ view, metaRef, onNodeClick, onBgClick, phase
   const fgRef = useRef();
   const wrapRef = useRef();
   const fitDone = useRef(false);
+  // force-graph mutates these node objects in place, so the tick handler can
+  // nudge them directly. Held in a ref so the handler never goes stale.
+  const viewRef = useRef(view);
+  viewRef.current = view;
   const [dims, setDims] = useState({
     w: window.innerWidth,
     h: window.innerHeight,
@@ -28,6 +54,8 @@ export default function GraphView({ view, metaRef, onNodeClick, onBgClick, phase
     return () => ro.disconnect();
   }, []);
 
+  // Registered once — react-force-graph keeps the same simulation across
+  // graphData updates, so re-registering per frame would only cause jitter.
   // camera follows the growing graph during playback, settles when done
   useEffect(() => {
     if (!fgRef.current) return;
@@ -200,6 +228,7 @@ export default function GraphView({ view, metaRef, onNodeClick, onBgClick, phase
         nodeLabel={nodeTooltip}
         onNodeClick={onNodeClick}
         onBackgroundClick={onBgClick}
+        onEngineTick={() => separateByCountry(viewRef.current.nodes)}
         cooldownTime={4000}
         d3AlphaDecay={0.035}
         d3VelocityDecay={0.35}
@@ -211,6 +240,15 @@ export default function GraphView({ view, metaRef, onNodeClick, onBgClick, phase
           }
         }}
       />
+
+      <div className="net-flag net-flag-in">
+        <IndiaFlag className="flag-img" />
+        <span>INDIA · UPI</span>
+      </div>
+      <div className="net-flag net-flag-sg">
+        <SingaporeFlag className="flag-img" />
+        <span>SINGAPORE · PayNow</span>
+      </div>
     </div>
   );
 }

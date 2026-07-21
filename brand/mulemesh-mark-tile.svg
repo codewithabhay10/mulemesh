@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="MuleMesh">
+  <title>MuleMesh</title>
+  <!-- App icon / avatar: yellow mark on a black rounded tile. Works on any
+       background, light or dark. -->
+
+  <rect width="64" height="64" rx="15" fill="#0d0d0d"/>
+
+  <g transform="translate(32 32) scale(0.88) translate(-32 -32)">
+    <path d="M32 10 51.05 21 51.05 43 32 54 12.95 43 12.95 21Z"
+          fill="none" stroke="#ffc400" stroke-width="2.1" stroke-linejoin="round" opacity="0.4"/>
+
+    <g stroke="#ffc400" stroke-width="2.8" stroke-linecap="round" opacity="0.55">
+      <path d="M12.95 21 32 32"/>
+      <path d="M12.95 43 32 32"/>
+      <path d="M32 10 32 32"/>
+      <path d="M32 54 32 32"/>
+      <path d="M32 32 51.05 21"/>
+      <path d="M32 32 51.05 43"/>
+    </g>
+
+    <circle cx="12.95" cy="21" r="5" fill="#ffc400"/>
+    <circle cx="12.95" cy="43" r="5" fill="#ffc400"/>
+    <circle cx="32" cy="10" r="5" fill="#ffc400"/>
+    <circle cx="32" cy="54" r="5" fill="#ffc400"/>
+    <circle cx="51.05" cy="21" r="5" fill="#ffc400"/>
+    <circle cx="51.05" cy="43" r="5" fill="#ffc400"/>
+
+    <circle cx="32" cy="32" r="9" fill="#0d0d0d" stroke="#ffc400" stroke-width="2.9"/>
+  </g>
+</svg>
