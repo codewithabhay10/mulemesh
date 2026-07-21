@@ -1,0 +1,22 @@
+# Render Blueprint. Must live at the REPO root — this repo holds both
+# mulemesh/ and AgentGate/, so rootDir points Render at the right subfolder.
+#
+# To use: Render dashboard -> New -> Blueprint -> pick this repo.
+# (Or skip this file entirely and create a Web Service by hand with
+#  Root Directory = mulemesh and Runtime = Docker.)
+services:
+  - type: web
+    name: mulemesh
+    runtime: docker
+    plan: free
+    region: singapore
+    rootDir: mulemesh
+    dockerfilePath: ./Dockerfile
+    # cheap always-200 endpoint, so Render's health check doesn't
+    # depend on the SPA or on Esri tiles loading
+    healthCheckPath: /api/stats
+    autoDeploy: true
+    # The "Polish with Claude" button is optional — with no key the backend
+    # serves the deterministic template SAR. To enable it, add
+    # ANTHROPIC_API_KEY in the Render dashboard (Environment tab).
+    # Never commit the key to this file.
