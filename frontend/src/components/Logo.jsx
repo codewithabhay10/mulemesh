@@ -1,14 +1,16 @@
-import { useId } from "react";
-
 // MuleMesh brand mark — the product compressed into one glyph.
 //
-// Six accounts meshed around a single hot hub: teal on the left (India, the
-// fan-in victims), gold on the right (Singapore, the fan-out dispersal), and a
-// red mule hub burning in the middle. The hexagon is the ring; the spokes are
-// the money. Same story RING-001 tells, at 16px.
+// Six accounts meshed around a single mule hub: fan-in on the left, fan-out on
+// the right. The hexagon is the ring, the spokes are the money. Same story
+// RING-001 tells, at 16px.
 //
-// Colours are the app's own tokens (--green/--blue/--gold/--red) hard-coded so
-// the file also works standalone (favicon, slide deck, README).
+// Black + yellow, matching brand/mulemesh-logo-light.svg. This is the DARK
+// surface variant: on the poster the wires and hub are black on white, here
+// they're yellow on near-black, so the hub reads as a ring rather than a blob.
+// Flat colours only — no gradients or blur, which turn to mud at favicon size.
+
+const YELLOW = "#ffc400";
+const HUB_INK = "#0d0d0d";
 
 const HEX = "M32 10 51.05 21 51.05 43 32 54 12.95 43 12.95 21Z";
 
@@ -22,22 +24,15 @@ const SPOKES = [
 ];
 
 const NODES = [
-  { cx: 12.95, cy: 21, r: 4.3, fill: "#2dd4a7" },
-  { cx: 12.95, cy: 43, r: 4.3, fill: "#2dd4a7" },
-  { cx: 32, cy: 10, r: 3.6, fill: "#7aa2ff" },
-  { cx: 32, cy: 54, r: 3.6, fill: "#7aa2ff" },
-  { cx: 51.05, cy: 21, r: 4.3, fill: "#f5c542" },
-  { cx: 51.05, cy: 43, r: 4.3, fill: "#f5c542" },
+  { cx: 12.95, cy: 21 },
+  { cx: 12.95, cy: 43 },
+  { cx: 32, cy: 10 },
+  { cx: 32, cy: 54 },
+  { cx: 51.05, cy: 21 },
+  { cx: 51.05, cy: 43 },
 ];
 
 export function MeshMark({ size = 42, tile = false, className, title = "MuleMesh" }) {
-  // SVG ids are document-global — two marks on one page would share (and fight
-  // over) the same gradients without this.
-  const uid = useId().replace(/:/g, "");
-  const wire = `mm-wire-${uid}`;
-  const hub = `mm-hub-${uid}`;
-  const glow = `mm-glow-${uid}`;
-
   return (
     <svg
       className={className}
@@ -47,48 +42,32 @@ export function MeshMark({ size = 42, tile = false, className, title = "MuleMesh
       role="img"
       aria-label={title}
     >
-      <defs>
-        {/* userSpaceOnUse, not the default objectBoundingBox: the vertical
-            spokes have a zero-width bbox and would render as a flat colour. */}
-        <linearGradient id={wire} gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="56" y2="0">
-          <stop offset="0" stopColor="#2dd4a7" />
-          <stop offset="0.5" stopColor="#7aa2ff" />
-          <stop offset="1" stopColor="#f5c542" />
-        </linearGradient>
-        <radialGradient id={hub} cx="0.35" cy="0.3" r="0.85">
-          <stop offset="0" stopColor="#ffd98a" />
-          <stop offset="0.55" stopColor="#f5c542" />
-          <stop offset="1" stopColor="#ff4d5e" />
-        </radialGradient>
-        <filter id={glow} x="-70%" y="-70%" width="240%" height="240%">
-          <feGaussianBlur stdDeviation="2.6" />
-        </filter>
-      </defs>
+      {tile && <rect width="64" height="64" rx="15" fill={HUB_INK} />}
 
-      {tile && <rect width="64" height="64" rx="15" fill="#0b1120" />}
-
+      {/* the ring — dimmed so the accounts carry the mark */}
       <path
         d={HEX}
         fill="none"
-        stroke={`url(#${wire})`}
-        strokeWidth="1.6"
+        stroke={YELLOW}
+        strokeWidth="1.9"
         strokeLinejoin="round"
-        opacity="0.5"
+        opacity="0.4"
       />
 
-      <g stroke={`url(#${wire})`} strokeWidth="2.2" strokeLinecap="round" opacity="0.9">
+      {/* the money */}
+      <g stroke={YELLOW} strokeWidth="2.5" strokeLinecap="round" opacity="0.55">
         {SPOKES.map((d) => (
           <path key={d} d={d} />
         ))}
       </g>
 
+      {/* the accounts */}
       {NODES.map((n) => (
-        <circle key={`${n.cx}-${n.cy}`} cx={n.cx} cy={n.cy} r={n.r} fill={n.fill} />
+        <circle key={`${n.cx}-${n.cy}`} cx={n.cx} cy={n.cy} r="4.5" fill={YELLOW} />
       ))}
 
-      <circle cx="32" cy="32" r="8.4" fill="#ff4d5e" opacity="0.45" filter={`url(#${glow})`} />
-      <circle cx="32" cy="32" r="7.6" fill={`url(#${hub})`} />
-      <circle cx="32" cy="32" r="7.6" fill="none" stroke="#ff4d5e" strokeWidth="1.5" opacity="0.9" />
+      {/* the mule hub */}
+      <circle cx="32" cy="32" r="8.4" fill={HUB_INK} stroke={YELLOW} strokeWidth="2.6" />
     </svg>
   );
 }

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+frontend/node_modules/
+frontend/dist/
+backend/data.json
+.env
+brand/
+run.ps1
+run.sh
+README.md

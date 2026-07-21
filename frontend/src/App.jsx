@@ -136,6 +136,9 @@ export default function App() {
       : phase === "done"
         ? 1
         : 0;
+  // the synthetic 6h window is mapped linearly onto PLAY_MS, so remaining wall
+  // time falls straight out of progress
+  const secondsLeft = Math.max(0, Math.ceil((PLAY_MS * (1 - progress)) / 1000));
 
   if (error) {
     return (
@@ -214,8 +217,19 @@ export default function App() {
         onClose={() => setSelected(null)}
       />
       {phase === "playing" && (
-        <div className="live-pill">
-          <span className="live-dot" /> streaming live transactions…
+        <div className="wait-notice" role="status" aria-live="polite">
+          <span className="wait-count">
+            {secondsLeft}
+            <small>s</small>
+          </span>
+          <span className="wait-body">
+            <b>
+              <span className="live-dot" /> Streaming six hours of transactions
+            </b>
+            <small>
+              Please wait — mule rings flash red the moment they're detected.
+            </small>
+          </span>
         </div>
       )}
         </>
